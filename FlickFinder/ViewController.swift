@@ -256,6 +256,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
     // completion handler for dataTaskWithRequest
     func dataTaskCompletionHandler(data: NSData?, response: NSURLResponse?, downloadError: NSError?) {
         
+        var foundImage = UIImage(named: "SearchAgain")
+        var foundImageTitle = "No Image Found..search again"
+        
         if let error = downloadError {
             println("Could not complete the request \(error)")
         } else {
@@ -264,77 +267,65 @@ class ViewController: UIViewController, UITextFieldDelegate {
             var parsingError: NSError? = nil
             let parsedResult = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: &parsingError) as! NSDictionary
             
-            // test for valid page
-            if let page = self.searchPage as Int? {
+            // begin parsing data
+            if let photosDict = parsedResult["photos"] as? [String: AnyObject] {
                 
-                // begin parsing data
-                if let photosDict = parsedResult["photos"] as? [String: AnyObject] {
+                // test for valid page
+                if let page = self.searchPage as Int? {
                     
-                    // declare a photos count, begin at 0, then read "total" key for # of photos
-                    var count = 0
-                    if let photosCount = photosDict["total"] as? String {
-                        count = (photosCount as NSString).integerValue
-                    }
+                    // valid random page has already been selected..this pass selects random image
                     
-                    // test for photos
-                    if count > 0 {
+                    // read in array of photo dictionaries
+                    if let photosArray = photosDict["photo"] as? [[String: AnyObject]] {
                         
-                        // read in array of photo dictionaries
-                        if let photosArray = photosDict["photo"] as? [[String: AnyObject]] {
+                        // get a random photo
+                        let randomIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
+                        let randomPhoto = photosArray[randomIndex] as [String: AnyObject]
+                        let randomUrlStr = randomPhoto["url_m"] as? String
+                        let imageUrl = NSURL(string: randomUrlStr!)
+                        
+                        // get image title
+                        var title = ""
+                        if let imageTitle = randomPhoto["title"] as? String {
                             
-                            // get a random photo
-                            let randomIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
-                            let randomPhoto = photosArray[randomIndex] as [String: AnyObject]
-                            let randomUrlStr = randomPhoto["url_m"] as? String
-                            let imageUrl = NSURL(string: randomUrlStr!)
+                            foundImageTitle = imageTitle
+                        }
+                        
+                        // get image data object
+                        if let imageData = NSData(contentsOfURL: imageUrl!) {
                             
-                            // get image title
-                            var title = ""
-                            if let imageTitle = randomPhoto["title"] as? String {
-                                
-                                title = imageTitle
-                            }
-                            
-                            // get image data object
-                            if let imageData = NSData(contentsOfURL: imageUrl!) {
-                                
-                                // good image, convert to UIImage object
-                                let image = UIImage(data: imageData)
-                                dispatch_async(dispatch_get_main_queue(),  {
-                                    
-                                    // update UI
-                                    self.flickImageView.image = image
-                                    self.imageTitleLabel.text = title
-                                })
-                            }
-                            else {
-                                
-                                // bad image
-                            }
+                            // good image, convert to UIImage object
+                            foundImage = UIImage(data: imageData)
                         }
                     }
-                    else {
-                        
-                        dispatch_async(dispatch_get_main_queue(),  {
-                            
-                            self.flickImageView.image = UIImage(named: "SearchAgain")
-                            self.imageTitleLabel.text = "No Image Found..search again"
-                        })
+                    
+                    // nil in preparation for next search
+                    self.searchPage = nil
+                }
+                else {
+                    
+                    // 1. get a random page
+                    // 2. assign self.searchPage to this random page
+                    // 3. add "page" key to search dictionary
+                    // 4. call function getImageFromFlickr()
+                    if let pages = photosDict["pages"] as? Int {
+
+                        self.searchPage = Int(arc4random_uniform(UInt32(pages))) + 1
+                        self.searchDictionary["page"] = self.searchPage
+                        getImageFromFlickr()
                     }
                 }
-                
-                self.searchPage = nil
             }
-            else {
+        }
+        
+        if (self.searchPage == nil) {
+            
+            dispatch_async(dispatch_get_main_queue(),  {
                 
-                // TODO: determine number of pages and select a random page for new search
-                // 1. get a random page
-                // 2. assign self.searchPage to this random page
-                // 3. add "page" key to search dictionary
-                // 4. call function getImageFromFlickr()
-                self.searchPage = 1
-                getImageFromFlickr()
-            }
+                // update UI
+                self.flickImageView.image = foundImage
+                self.imageTitleLabel.text = foundImageTitle
+            })
         }
     }
 }
