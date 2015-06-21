@@ -201,13 +201,15 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
         
         // get an image
-        getImageFromFlickr(phaseSearchDictionary)
+        self.searchDictionary = phaseSearchDictionary
+        getImageFromFlickr()
     }
 
     @IBAction func searchByGeoButtonPressed(sender: UIButton) {
         
         // get an image
-        getImageFromFlickr(geoSearchDictionary)
+        self.searchDictionary = geoSearchDictionary
+        getImageFromFlickr()
     }
     
     // function t0 create valid long/lat for bbox Flickr search term
@@ -224,11 +226,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return "\(longMin),\(latMin), \(longMax),\(latMax)"
     }
     
-    func getImageFromFlickr(parameters: [String: AnyObject]) {
+    func getImageFromFlickr() {
         
         // get session, url. Create NSURL and request
         let session = NSURLSession.sharedSession()
-        let urlStr = BASE_URL + apiCallStringFromDictionary(parameters)
+        let urlStr = BASE_URL + apiCallStringFromDictionary(self.searchDictionary)
         let url = NSURL(string: urlStr)!
         let request = NSURLRequest(URL: url)
         
