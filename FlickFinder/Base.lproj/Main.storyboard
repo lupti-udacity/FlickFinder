@@ -41,22 +41,31 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="vXZ-lx-hvc" id="OQW-Mo-v0t"/>
+                                </connections>
                             </textField>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Lat" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="he7-l9-sNr">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="37.774" borderStyle="roundedRect" placeholder="Enter Lat" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="he7-l9-sNr">
                                 <rect key="frame" x="16" y="339" width="100" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="100" id="ujz-bM-LqY"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="vXZ-lx-hvc" id="eCb-9F-dGR"/>
+                                </connections>
                             </textField>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Long" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Bgt-R1-uTj">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="-122.431" borderStyle="roundedRect" placeholder="Enter Long" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Bgt-R1-uTj">
                                 <rect key="frame" x="426" y="339" width="100" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="100" id="iF0-Yl-gZG"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="vXZ-lx-hvc" id="dSl-J2-tde"/>
+                                </connections>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wIz-AH-aRV">
                                 <rect key="frame" x="534" y="271" width="50" height="50"/>
@@ -144,8 +153,10 @@
                     <connections>
                         <outlet property="flickImageView" destination="niP-wQ-0MF" id="9a9-Hd-WzS"/>
                         <outlet property="imageTitleLabel" destination="qSR-gl-PdA" id="gVH-Qe-Qwo"/>
+                        <outlet property="searchByGeoButton" destination="d4n-Xs-3qB" id="FqM-DB-sQN"/>
                         <outlet property="searchByLatTextField" destination="he7-l9-sNr" id="oy3-fL-17A"/>
                         <outlet property="searchByLongTextField" destination="Bgt-R1-uTj" id="QuW-e5-EWe"/>
+                        <outlet property="searchByPhraseButton" destination="wIz-AH-aRV" id="Wvs-0U-jwM"/>
                         <outlet property="searchByPhraseTextField" destination="zuI-k9-5gX" id="CdB-b5-089"/>
                     </connections>
                 </viewController>
