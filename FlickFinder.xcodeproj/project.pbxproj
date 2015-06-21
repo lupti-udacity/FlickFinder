@@ -13,6 +13,7 @@
 		86A58D731B35F39700D99ABC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 86A58D721B35F39700D99ABC /* Images.xcassets */; };
 		86A58D761B35F39700D99ABC /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 86A58D741B35F39700D99ABC /* LaunchScreen.xib */; };
 		86A58D821B35F39700D99ABC /* FlickFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86A58D811B35F39700D99ABC /* FlickFinderTests.swift */; };
+		86F768FD1B373FF20011E44B /* AppDefinitionStatement.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 86F768FC1B373FF20011E44B /* AppDefinitionStatement.rtf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,7 @@
 		86A58D7B1B35F39700D99ABC /* FlickFinderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlickFinderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		86A58D801B35F39700D99ABC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		86A58D811B35F39700D99ABC /* FlickFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickFinderTests.swift; sourceTree = "<group>"; };
+		86F768FC1B373FF20011E44B /* AppDefinitionStatement.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = AppDefinitionStatement.rtf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 		86A58D5D1B35F39700D99ABC = {
 			isa = PBXGroup;
 			children = (
+				86F768FC1B373FF20011E44B /* AppDefinitionStatement.rtf */,
 				86A58D681B35F39700D99ABC /* FlickFinder */,
 				86A58D7E1B35F39700D99ABC /* FlickFinderTests */,
 				86A58D671B35F39700D99ABC /* Products */,
@@ -195,6 +198,7 @@
 				86A58D711B35F39700D99ABC /* Main.storyboard in Resources */,
 				86A58D761B35F39700D99ABC /* LaunchScreen.xib in Resources */,
 				86A58D731B35F39700D99ABC /* Images.xcassets in Resources */,
+				86F768FD1B373FF20011E44B /* AppDefinitionStatement.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -409,6 +413,7 @@
 				86A58D871B35F39700D99ABC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		86A58D881B35F39700D99ABC /* Build configuration list for PBXNativeTarget "FlickFinderTests" */ = {
 			isa = XCConfigurationList;
@@ -417,6 +422,7 @@
 				86A58D8A1B35F39700D99ABC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

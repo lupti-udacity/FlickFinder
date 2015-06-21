@@ -10,6 +10,7 @@ import UIKit
 
 class ViewController: UIViewController, UITextFieldDelegate {
 
+    // Flickr params
     let BASE_URL = "https://api.flickr.com/services/rest/"
     let METHOD_NAME = "flickr.photos.search"
     let API_KEY = "3bc85d1817c25bfd73b8a05ff26a01c3"
@@ -17,10 +18,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
     let SAFE_SEARCH = "1"
     let DATA_FORMAT = "json"
     let NO_JSON_CALLBACK = "1"
-    
-    // hardcoded version
-    let urlHardCodedStr = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=3bc85d1817c25bfd73b8a05ff26a01c3&text=baby+asian+elephant&format=json&nojsoncallback=1"
-    
+
+    // outlets to storyBoard objects
     @IBOutlet weak var flickImageView: UIImageView!
     @IBOutlet weak var searchByPhraseTextField: UITextField!
     @IBOutlet weak var searchByLatTextField: UITextField!
@@ -29,15 +28,16 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var searchByPhraseButton: UIButton!
     @IBOutlet weak var searchByGeoButton: UIButton!
     
-    var gr: UITapGestureRecognizer!
+    // tap recognizer, used to dismiss keyboard
+    var tapRecognizer: UITapGestureRecognizer!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
         // create gr
-        gr = UITapGestureRecognizer(target: self, action: "tapDetected:")
-        gr.numberOfTapsRequired = 1
+        tapRecognizer = UITapGestureRecognizer(target: self, action: "tapDetected:")
+        tapRecognizer.numberOfTapsRequired = 1
     }
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
@@ -48,10 +48,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         super.viewWillDisappear(animated)
         
         unsubscribeToKeyboardNotifications()
-    }
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     // subscribe to keyboard notifications
@@ -101,7 +97,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         })
         
         // add gr to view..used to detect tap to initiat dismiss
-        self.view.addGestureRecognizer(gr)
+        self.view.addGestureRecognizer(tapRecognizer)
         
         // disable search buttons while editing
         searchByPhraseButton.enabled = false
@@ -121,7 +117,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         })
         
         // remove gr from view..no longer needed since keyboard is gone
-        self.view.removeGestureRecognizer(gr)
+        self.view.removeGestureRecognizer(tapRecognizer)
         
         // enable search buttons, no longer editing
         searchByPhraseButton.enabled = true
@@ -131,9 +127,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     // get height of keyboard
     func getKeyboardHeight(notification: NSNotification) -> CGFloat {
         
-        /*
-        Use notification to retrieve keyboard info, key for size
-        */
+        // Use notification to retrieve keyboard info, key for size
         
         let userInfo = notification.userInfo
         let keyboardSize = userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue // of CGRect
@@ -143,6 +137,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     // tap detected
     func tapDetected(gr: UIGestureRecognizer) {
      
+        // end editing, force textFields to resign first responder
         self.view.endEditing(true)
     }
     
@@ -211,47 +206,58 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     func getImageFromFlickr(parameters: [String: AnyObject]) {
         
+        // get session, url. Create NSURL and request
         let session = NSURLSession.sharedSession()
         let urlStr = BASE_URL + apiCallStringFromDictionary(parameters)
         let url = NSURL(string: urlStr)!
-        //let url = NSURL(string: urlHardCodedStr)!
         let request = NSURLRequest(URL: url)
         
+        // get a new dataTask for receiving data
         let task = session.dataTaskWithRequest(request) {data, response, downloadError in
             if let error = downloadError {
                 println("Could not complete the request \(error)")
             } else {
 
+                // valid response, get JSON data
                 var parsingError: NSError? = nil
                 let parsedResult = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: &parsingError) as! NSDictionary
                 
+                // begin parsing data
                 if let photosDict = parsedResult["photos"] as? [String: AnyObject] {
                     
+                    // declare a photos count, begin at 0, then read "total" key for # of photos
                     var count = 0
                     if let photosCount = photosDict["total"] as? String {
                         count = (photosCount as NSString).integerValue
                     }
                     
+                    // test for photos
                     if count > 0 {
                         
+                        // read in array of photo dictionaries
                         if let photosArray = photosDict["photo"] as? [[String: AnyObject]] {
                             
+                            // get a random photo
                             let randomIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
                             let randomPhoto = photosArray[randomIndex] as [String: AnyObject]
                             let randomUrlStr = randomPhoto["url_m"] as? String
                             let imageUrl = NSURL(string: randomUrlStr!)
                             
+                            // get image title
                             var title = ""
                             if let imageTitle = randomPhoto["title"] as? String {
                                 
                                 title = imageTitle
                             }
+                            
+                            // get image data object
                             if let imageData = NSData(contentsOfURL: imageUrl!) {
                                 
-                                // good image
+                                // good image, convert to UIImage object
                                 let image = UIImage(data: imageData)
                                 dispatch_async(dispatch_get_main_queue(),  {
                                     
+                                    // update UI
                                     self.flickImageView.image = image
                                     self.imageTitleLabel.text = title
                                 })
@@ -274,11 +280,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
             }
         }
         
+        // resume (begin) data task
         task.resume()
     }
     
-    // function to convert a dictionary of Flickr key/value params into a search string suitable
-    // for use in a url
+    /* function to convert a dictionary of Flickr key/value params into a search string suitable
+       for use in a url */
     func apiCallStringFromDictionary(parameters: [String: AnyObject]) -> String {
         
         // create an array of stings
@@ -300,10 +307,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         // join result in urlVars array by compbining by "&", return
         let retString = (!urlVars.isEmpty ? "?" : "") + join("&", urlVars)
         return retString
-    }
-    
-    func dataTaskCompletionHandler (data: NSData, response: NSURLResponse, error: NSError) {
-        
     }
 }
 
