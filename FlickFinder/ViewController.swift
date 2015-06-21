@@ -212,74 +212,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
         let url = NSURL(string: urlStr)!
         let request = NSURLRequest(URL: url)
         
-        // get a new dataTask for receiving data
-        let task = session.dataTaskWithRequest(request) {data, response, downloadError in
-            if let error = downloadError {
-                println("Could not complete the request \(error)")
-            } else {
+        // create a data task..use completion handler defined below...
+        let task = session.dataTaskWithRequest(request, completionHandler: dataTaskCompletionHandler)
 
-                // valid response, get JSON data
-                var parsingError: NSError? = nil
-                let parsedResult = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: &parsingError) as! NSDictionary
-                
-                // begin parsing data
-                if let photosDict = parsedResult["photos"] as? [String: AnyObject] {
-                    
-                    // declare a photos count, begin at 0, then read "total" key for # of photos
-                    var count = 0
-                    if let photosCount = photosDict["total"] as? String {
-                        count = (photosCount as NSString).integerValue
-                    }
-                    
-                    // test for photos
-                    if count > 0 {
-                        
-                        // read in array of photo dictionaries
-                        if let photosArray = photosDict["photo"] as? [[String: AnyObject]] {
-                            
-                            // get a random photo
-                            let randomIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
-                            let randomPhoto = photosArray[randomIndex] as [String: AnyObject]
-                            let randomUrlStr = randomPhoto["url_m"] as? String
-                            let imageUrl = NSURL(string: randomUrlStr!)
-                            
-                            // get image title
-                            var title = ""
-                            if let imageTitle = randomPhoto["title"] as? String {
-                                
-                                title = imageTitle
-                            }
-                            
-                            // get image data object
-                            if let imageData = NSData(contentsOfURL: imageUrl!) {
-                                
-                                // good image, convert to UIImage object
-                                let image = UIImage(data: imageData)
-                                dispatch_async(dispatch_get_main_queue(),  {
-                                    
-                                    // update UI
-                                    self.flickImageView.image = image
-                                    self.imageTitleLabel.text = title
-                                })
-                            }
-                            else {
-                                
-                                // bad image
-                            }
-                        }
-                    }
-                    else {
-                        
-                        dispatch_async(dispatch_get_main_queue(),  {
-                            
-                            self.flickImageView.image = UIImage(named: "SearchAgain")
-                            self.imageTitleLabel.text = "No Image Found..search again"
-                        })
-                    }
-                }
-            }
-        }
-        
         // resume (begin) data task
         task.resume()
     }
@@ -307,6 +242,75 @@ class ViewController: UIViewController, UITextFieldDelegate {
         // join result in urlVars array by compbining by "&", return
         let retString = (!urlVars.isEmpty ? "?" : "") + join("&", urlVars)
         return retString
+    }
+    
+    // completion handler for dataTaskWithRequest
+    func dataTaskCompletionHandler(data: NSData?, response: NSURLResponse?, downloadError: NSError?) {
+        
+        if let error = downloadError {
+            println("Could not complete the request \(error)")
+        } else {
+            
+            // valid response, get JSON data
+            var parsingError: NSError? = nil
+            let parsedResult = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: &parsingError) as! NSDictionary
+            
+            // begin parsing data
+            if let photosDict = parsedResult["photos"] as? [String: AnyObject] {
+                
+                // declare a photos count, begin at 0, then read "total" key for # of photos
+                var count = 0
+                if let photosCount = photosDict["total"] as? String {
+                    count = (photosCount as NSString).integerValue
+                }
+                
+                // test for photos
+                if count > 0 {
+                    
+                    // read in array of photo dictionaries
+                    if let photosArray = photosDict["photo"] as? [[String: AnyObject]] {
+                        
+                        // get a random photo
+                        let randomIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
+                        let randomPhoto = photosArray[randomIndex] as [String: AnyObject]
+                        let randomUrlStr = randomPhoto["url_m"] as? String
+                        let imageUrl = NSURL(string: randomUrlStr!)
+                        
+                        // get image title
+                        var title = ""
+                        if let imageTitle = randomPhoto["title"] as? String {
+                            
+                            title = imageTitle
+                        }
+                        
+                        // get image data object
+                        if let imageData = NSData(contentsOfURL: imageUrl!) {
+                            
+                            // good image, convert to UIImage object
+                            let image = UIImage(data: imageData)
+                            dispatch_async(dispatch_get_main_queue(),  {
+                                
+                                // update UI
+                                self.flickImageView.image = image
+                                self.imageTitleLabel.text = title
+                            })
+                        }
+                        else {
+                            
+                            // bad image
+                        }
+                    }
+                }
+                else {
+                    
+                    dispatch_async(dispatch_get_main_queue(),  {
+                        
+                        self.flickImageView.image = UIImage(named: "SearchAgain")
+                        self.imageTitleLabel.text = "No Image Found..search again"
+                    })
+                }
+            }
+        }
     }
 }
 
