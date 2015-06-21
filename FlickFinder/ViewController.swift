@@ -34,6 +34,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
     // current search dictionary..is created/assigned when search button is pressed
     var searchDictionary: [String: AnyObject]!
     
+    // search page..used to steer search for page/photo
+    var searchPage: Int? = nil
+    
     //var phaseSearchDictionary =
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -261,10 +264,23 @@ class ViewController: UIViewController, UITextFieldDelegate {
             var parsingError: NSError? = nil
             let parsedResult = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: &parsingError) as! NSDictionary
             
+            // test for valid page
+            if let page = self.searchPage as Int? {
+                
+                println("valid page")
+            }
+            else {
+                
+                // TODO: determine number of pages and select a random page for new search
+                // 1. get a random page
+                // 2. assign self.searchPage to this random page
+                // 3. add "page" key to search dictionary
+                // 4. call function getImageFromFlickr()
+            }
+            
             // begin parsing data
             if let photosDict = parsedResult["photos"] as? [String: AnyObject] {
                 
-                println(photosDict["pages"])
                 // declare a photos count, begin at 0, then read "total" key for # of photos
                 var count = 0
                 if let photosCount = photosDict["total"] as? String {
