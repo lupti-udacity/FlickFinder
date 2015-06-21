@@ -31,6 +31,48 @@ class ViewController: UIViewController, UITextFieldDelegate {
     // tap recognizer, used to dismiss keyboard
     var tapRecognizer: UITapGestureRecognizer!
 
+    // declare a computed property for search by phrase dictionary
+    var phaseSearchDictionary: [String: AnyObject] {
+        get {
+            
+            // create dictionary with Flickr search params
+            let parameters = [
+                "method": METHOD_NAME,
+                "api_key": API_KEY,
+                "text": searchByPhraseTextField.text,
+                "safe_search": SAFE_SEARCH,
+                "extras": EXTRAS,
+                "format": DATA_FORMAT,
+                "nojsoncallback": NO_JSON_CALLBACK,
+                "per_page": "100"
+            ]
+            return parameters
+        }
+    }
+    
+    // declare a computed property for search by geography dictionary
+    var geoSearchDictionary: [String: AnyObject] {
+        get {
+            
+            // create dictionary with Flickr search params
+            let parameters = [
+                "method": METHOD_NAME,
+                "api_key": API_KEY,
+                "bbox": getBboxString(),
+                "safe_search": SAFE_SEARCH,
+                "extras": EXTRAS,
+                "format": DATA_FORMAT,
+                "nojsoncallback": NO_JSON_CALLBACK,
+                "per_page": "100"
+            ]
+            return parameters
+        }
+    }
+    
+    // current search dictionary
+    var searchDictionary: [String: AnyObject]!
+    
+    //var phaseSearchDictionary =
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -158,38 +200,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
             return;
         }
         
-        // create dictionary with Flickr search params
-        let parameters = [
-            "method": METHOD_NAME,
-            "api_key": API_KEY,
-            "text": searchByPhraseTextField.text,
-            "safe_search": SAFE_SEARCH,
-            "extras": EXTRAS,
-            "format": DATA_FORMAT,
-            "nojsoncallback": NO_JSON_CALLBACK,
-            "per_page": "100"
-        ]
-        
         // get an image
-        getImageFromFlickr(parameters)
+        getImageFromFlickr(phaseSearchDictionary)
     }
 
     @IBAction func searchByGeoButtonPressed(sender: UIButton) {
         
-        // create dictionary with Flickr search params
-        let parameters = [
-            "method": METHOD_NAME,
-            "api_key": API_KEY,
-            "bbox": getBboxString(),
-            "safe_search": SAFE_SEARCH,
-            "extras": EXTRAS,
-            "format": DATA_FORMAT,
-            "nojsoncallback": NO_JSON_CALLBACK,
-            "per_page": "100"
-        ]
-        
         // get an image
-        getImageFromFlickr(parameters)
+        getImageFromFlickr(geoSearchDictionary)
     }
     
     // function t0 create valid long/lat for bbox Flickr search term
@@ -260,7 +278,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             // begin parsing data
             if let photosDict = parsedResult["photos"] as? [String: AnyObject] {
                 
-                println(photosDict)
+                println(photosDict["pages"])
                 // declare a photos count, begin at 0, then read "total" key for # of photos
                 var count = 0
                 if let photosCount = photosDict["total"] as? String {
@@ -273,7 +291,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
                     // read in array of photo dictionaries
                     if let photosArray = photosDict["photo"] as? [[String: AnyObject]] {
                         
-                        println("count: \(photosArray.count)")
                         // get a random photo
                         let randomIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
                         let randomPhoto = photosArray[randomIndex] as [String: AnyObject]
