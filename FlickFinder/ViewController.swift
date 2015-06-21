@@ -30,46 +30,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     // tap recognizer, used to dismiss keyboard
     var tapRecognizer: UITapGestureRecognizer!
-
-    // declare a computed property for search by phrase dictionary
-    var phaseSearchDictionary: [String: AnyObject] {
-        get {
-            
-            // create dictionary with Flickr search params
-            let parameters = [
-                "method": METHOD_NAME,
-                "api_key": API_KEY,
-                "text": searchByPhraseTextField.text,
-                "safe_search": SAFE_SEARCH,
-                "extras": EXTRAS,
-                "format": DATA_FORMAT,
-                "nojsoncallback": NO_JSON_CALLBACK,
-                "per_page": "100"
-            ]
-            return parameters
-        }
-    }
     
-    // declare a computed property for search by geography dictionary
-    var geoSearchDictionary: [String: AnyObject] {
-        get {
-            
-            // create dictionary with Flickr search params
-            let parameters = [
-                "method": METHOD_NAME,
-                "api_key": API_KEY,
-                "bbox": getBboxString(),
-                "safe_search": SAFE_SEARCH,
-                "extras": EXTRAS,
-                "format": DATA_FORMAT,
-                "nojsoncallback": NO_JSON_CALLBACK,
-                "per_page": "100"
-            ]
-            return parameters
-        }
-    }
-    
-    // current search dictionary
+    // current search dictionary..is created/assigned when search button is pressed
     var searchDictionary: [String: AnyObject]!
     
     //var phaseSearchDictionary =
@@ -200,15 +162,37 @@ class ViewController: UIViewController, UITextFieldDelegate {
             return;
         }
         
+        // assign search dictionary
+        self.searchDictionary = [
+            "method": METHOD_NAME,
+            "api_key": API_KEY,
+            "text": searchByPhraseTextField.text,
+            "safe_search": SAFE_SEARCH,
+            "extras": EXTRAS,
+            "format": DATA_FORMAT,
+            "nojsoncallback": NO_JSON_CALLBACK,
+            "per_page": "100"
+        ]
+        
         // get an image
-        self.searchDictionary = phaseSearchDictionary
         getImageFromFlickr()
     }
 
     @IBAction func searchByGeoButtonPressed(sender: UIButton) {
         
+        // assign search dictionary
+        self.searchDictionary = [
+            "method": METHOD_NAME,
+            "api_key": API_KEY,
+            "bbox": getBboxString(),
+            "safe_search": SAFE_SEARCH,
+            "extras": EXTRAS,
+            "format": DATA_FORMAT,
+            "nojsoncallback": NO_JSON_CALLBACK,
+            "per_page": "100"
+        ]
+        
         // get an image
-        self.searchDictionary = geoSearchDictionary
         getImageFromFlickr()
     }
     
