@@ -166,7 +166,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
             "safe_search": SAFE_SEARCH,
             "extras": EXTRAS,
             "format": DATA_FORMAT,
-            "nojsoncallback": NO_JSON_CALLBACK
+            "nojsoncallback": NO_JSON_CALLBACK,
+            "per_page": "100"
         ]
         
         // get an image
@@ -183,7 +184,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
             "safe_search": SAFE_SEARCH,
             "extras": EXTRAS,
             "format": DATA_FORMAT,
-            "nojsoncallback": NO_JSON_CALLBACK
+            "nojsoncallback": NO_JSON_CALLBACK,
+            "per_page": "100"
         ]
         
         // get an image
@@ -258,6 +260,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             // begin parsing data
             if let photosDict = parsedResult["photos"] as? [String: AnyObject] {
                 
+                println(photosDict)
                 // declare a photos count, begin at 0, then read "total" key for # of photos
                 var count = 0
                 if let photosCount = photosDict["total"] as? String {
@@ -270,6 +273,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
                     // read in array of photo dictionaries
                     if let photosArray = photosDict["photo"] as? [[String: AnyObject]] {
                         
+                        println("count: \(photosArray.count)")
                         // get a random photo
                         let randomIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
                         let randomPhoto = photosArray[randomIndex] as [String: AnyObject]
