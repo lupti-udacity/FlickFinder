@@ -5,6 +5,16 @@
 //  Created by Online Training on 6/20/15.
 //  Copyright (c) 2015 Mitch Salcido. All rights reserved.
 //
+/*
+Info:
+ViewController is the main VC for this app. After a search button is pressed (search by phrase or by geography),
+the function "getImageFromFlickr()" is called. This method is called recursively, first to retrieve page info and select
+a random page from available pages, and called again to retrieve the photo using a new dataTask that includes the
+key "page".
+
+Notes:
+optional "searchPage" is used to steer the search for random page or random photo from page...........................
+*/
 
 import UIKit
 
@@ -299,7 +309,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
                         }
                     }
                     
-                    // nil in preparation for next search
+                    // set to nil in preparation for next search
                     self.searchPage = nil
                 }
                 else {
@@ -318,6 +328,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             }
         }
         
+        // on second pass thru, searchPage has been reset to nil..OK up update UI
         if (self.searchPage == nil) {
             
             dispatch_async(dispatch_get_main_queue(),  {
