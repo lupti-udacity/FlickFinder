@@ -13,7 +13,7 @@ a random page from available pages, and called again to retrieve the photo using
 key "page".
 
 Notes:
-optional "searchPage" is used to steer the search for random page or random photo from page...........................
+optional "searchPage" is used to steer the search for random page or random photo from page.
 */
 
 import UIKit
@@ -47,7 +47,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
     // search page..used to steer search for page/photo
     var searchPage: Int? = nil
     
-    //var phaseSearchDictionary =
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -193,24 +192,31 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
     @IBAction func searchByGeoButtonPressed(sender: UIButton) {
         
-        // assign search dictionary
-        self.searchDictionary = [
-            "method": METHOD_NAME,
-            "api_key": API_KEY,
-            "bbox": getBboxString(),
-            "safe_search": SAFE_SEARCH,
-            "extras": EXTRAS,
-            "format": DATA_FORMAT,
-            "nojsoncallback": NO_JSON_CALLBACK,
-            "per_page": "100"
-        ]
-        
-        // get an image
-        getImageFromFlickr()
+        // get bbox string
+        if let bboxString = getBboxString() {
+            
+            // assign search dictionary
+            self.searchDictionary = [
+                "method": METHOD_NAME,
+                "api_key": API_KEY,
+                "bbox": bboxString,
+                "safe_search": SAFE_SEARCH,
+                "extras": EXTRAS,
+                "format": DATA_FORMAT,
+                "nojsoncallback": NO_JSON_CALLBACK,
+                "per_page": "100"
+            ]
+            
+            // get an image
+            getImageFromFlickr()
+        }
+        else {
+            imageTitleLabel.text = "Enter Valid lat/long values"
+        }
     }
     
     // function t0 create valid long/lat for bbox Flickr search term
-    func getBboxString() -> String {
+    func getBboxString() -> String? {
         
         let delta: Float = 0.1 // degrees +/- for bbox
         let long = (searchByLongTextField.text as NSString).floatValue
