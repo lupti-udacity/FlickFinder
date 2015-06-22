@@ -20,6 +20,13 @@ import UIKit
 
 class ViewController: UIViewController, UITextFieldDelegate {
 
+    // defs for geography search
+    let MAX_LATITUDE = 90.0
+    let MIN_LATITUDE = -90.0
+    let MAX_LONGITUDE = 180.0
+    let MIN_LONGITUDE = -180.0
+    let GEO_DELTA = 0.1 // +/- for search
+    
     // Flickr params
     let BASE_URL = "https://api.flickr.com/services/rest/"
     let METHOD_NAME = "flickr.photos.search"
@@ -215,7 +222,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    // function t0 create valid long/lat for bbox Flickr search term
+    // function to create valid long/lat for bbox Flickr search term
     func getBboxString() -> String? {
         
         let delta: Float = 0.1 // degrees +/- for bbox
@@ -227,6 +234,41 @@ class ViewController: UIViewController, UITextFieldDelegate {
         let latMax = lat + delta
         
         return "\(longMin),\(latMin), \(longMax),\(latMax)"
+    }
+    
+    // heler function to test for valid float..returns float or nil if bad value (e.g. contains a non-numeric char)
+    func floatFromString(string: String) -> Float? {
+        
+        // test for more than one decimal point
+        var testStr = ""
+        testStr += string
+        var decimalCount = 0
+        while testStr.rangeOfString(".") != nil {
+            decimalCount++
+            testStr.removeRange(testStr.rangeOfString(".")!)
+        }
+        // more than one decimal..return nil
+        if decimalCount > 1 {
+            return nil
+        }
+        
+        // test for only valid numerals
+        let validNumerals = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        for str in validNumerals {
+            
+            // remove all instances of valid numerals from testStr
+            while testStr.rangeOfString(str) != nil {
+                testStr.removeRange(testStr.rangeOfString(str)!)
+            }
+        }
+        
+        
+        // testStr should now have zero length
+        if (testStr as NSString).length > 0 {
+            return nil
+        }
+        
+        return (string as NSString).floatValue
     }
     
     func getImageFromFlickr() {
