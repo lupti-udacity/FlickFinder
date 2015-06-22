@@ -21,11 +21,11 @@ import UIKit
 class ViewController: UIViewController, UITextFieldDelegate {
 
     // defs for geography search
-    let MAX_LATITUDE = 90.0
-    let MIN_LATITUDE = -90.0
-    let MAX_LONGITUDE = 180.0
-    let MIN_LONGITUDE = -180.0
-    let GEO_DELTA = 0.1 // +/- for search
+    let MAX_LATITUDE: Float = 90.0
+    let MIN_LATITUDE: Float = -90.0
+    let MAX_LONGITUDE: Float = 180.0
+    let MIN_LONGITUDE: Float = -180.0
+    let GEO_DELTA: Float = 1.0 // +/- degrees range for search
     
     // Flickr params
     let BASE_URL = "https://api.flickr.com/services/rest/"
@@ -199,9 +199,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
     @IBAction func searchByGeoButtonPressed(sender: UIButton) {
         
+        println(getBboxString())
+        
         // get bbox string
         if let bboxString = getBboxString() {
-            
+
             // assign search dictionary
             self.searchDictionary = [
                 "method": METHOD_NAME,
@@ -225,30 +227,72 @@ class ViewController: UIViewController, UITextFieldDelegate {
     // function to create valid long/lat for bbox Flickr search term
     func getBboxString() -> String? {
         
-        let delta: Float = 0.1 // degrees +/- for bbox
-        let long = (searchByLongTextField.text as NSString).floatValue
-        let lat = (searchByLatTextField.text as NSString).floatValue
-        let longMin = long - delta
-        let longMax = long + delta
-        let latMin = lat - delta
-        let latMax = lat + delta
+        var latFloat: Float = 0.0
+        var lonFloat: Float = 0.0
         
-        return "\(longMin),\(latMin), \(longMax),\(latMax)"
+        if let lat = floatFromString(searchByLatTextField.text) {
+            
+            latFloat = lat
+            
+            if let lon = floatFromString(searchByLongTextField.text) {
+                
+                lonFloat = lon
+            }
+            else {
+                return nil
+            }
+        }
+        else {
+            return nil
+        }
+        
+        if latFloat >= MAX_LATITUDE || latFloat <= MIN_LATITUDE {
+            return nil
+        }
+        
+        if lonFloat >= MAX_LONGITUDE || lonFloat <= MIN_LONGITUDE {
+            return nil
+        }
+        
+        // TODO: constain to +/- 90/180
+        let minLat = latFloat - GEO_DELTA
+        let minLon = lonFloat - GEO_DELTA
+        let maxLat = latFloat + GEO_DELTA
+        let maxLon = lonFloat + GEO_DELTA
+        
+        return "\(minLon),\(minLat),\(maxLon),\(maxLat)"
     }
     
-    // heler function to test for valid float..returns float or nil if bad value (e.g. contains a non-numeric char)
+    /* heler function to test for valid float..returns float or nil if bad value (e.g. contains a non-numeric char)
+       ..very brute force !! there's probably a much cleaner way to do this !! */
     func floatFromString(string: String) -> Float? {
         
-        // test for more than one decimal point
+        // test for empty string
+        if string == "" {
+            return nil
+        }
+        
+        // create mutable string
         var testStr = ""
         testStr += string
-        var decimalCount = 0
+
+        // test for "-" at beginning..remove if present
+        if first(testStr) == "-" {
+            testStr = dropFirst(testStr)
+        }
+        // test for additional "-"
+        if testStr.rangeOfString("-") != nil {
+            return nil
+        }
+
+        // test for more than one decimal point
+        var count = 0
         while testStr.rangeOfString(".") != nil {
-            decimalCount++
+            count++
             testStr.removeRange(testStr.rangeOfString(".")!)
         }
         // more than one decimal..return nil
-        if decimalCount > 1 {
+        if count > 1 {
             return nil
         }
         
@@ -262,9 +306,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
             }
         }
         
-        
-        // testStr should now have zero length
-        if (testStr as NSString).length > 0 {
+        // testStr should now be stripped of all chars..if a valid float
+        if distance(testStr.startIndex, testStr.endIndex) > 0 {
             return nil
         }
         
@@ -314,6 +357,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     // completion handler for dataTaskWithRequest
     func dataTaskCompletionHandler(data: NSData?, response: NSURLResponse?, downloadError: NSError?) {
         
+        // preset foundImage/Title to default...
         var foundImage = UIImage(named: "SearchAgain")
         var foundImageTitle = "No Image Found..search again"
         
@@ -336,24 +380,28 @@ class ViewController: UIViewController, UITextFieldDelegate {
                     // read in array of photo dictionaries
                     if let photosArray = photosDict["photo"] as? [[String: AnyObject]] {
                         
-                        // get a random photo
-                        let randomIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
-                        let randomPhoto = photosArray[randomIndex] as [String: AnyObject]
-                        let randomUrlStr = randomPhoto["url_m"] as? String
-                        let imageUrl = NSURL(string: randomUrlStr!)
-                        
-                        // get image title
-                        var title = ""
-                        if let imageTitle = randomPhoto["title"] as? String {
+                        // test for 0 photos
+                        if photosArray.count > 0 {
+                         
+                            // get a random photo
+                            let randomIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
+                            let randomPhoto = photosArray[randomIndex] as [String: AnyObject]
+                            let randomUrlStr = randomPhoto["url_m"] as? String
+                            let imageUrl = NSURL(string: randomUrlStr!)
                             
-                            foundImageTitle = imageTitle
-                        }
-                        
-                        // get image data object
-                        if let imageData = NSData(contentsOfURL: imageUrl!) {
+                            // get image title
+                            var title = ""
+                            if let imageTitle = randomPhoto["title"] as? String {
+                                
+                                foundImageTitle = imageTitle
+                            }
                             
-                            // good image, convert to UIImage object
-                            foundImage = UIImage(data: imageData)
+                            // get image data object
+                            if let imageData = NSData(contentsOfURL: imageUrl!) {
+                                
+                                // good image, convert to UIImage object
+                                foundImage = UIImage(data: imageData)
+                            }
                         }
                     }
                     
