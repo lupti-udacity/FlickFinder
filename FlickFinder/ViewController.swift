@@ -267,9 +267,19 @@ class ViewController: UIViewController, UITextFieldDelegate {
        ..very brute force !! there's probably a much cleaner way to do this !! */
     func floatFromString(string: String) -> Float? {
         
+        /*
+        This function operates by
+        1. test for "" ..return nil because not a valid Float
+        2. test for "-" at beginning of string, and also test for more than one "-". Remove all occurances of "-"
+        3. test for more than one ".". Remove all occurances of "."
+        4. test that string contains only valid numerals, Remove all occurances of numeral
+        5. Now, string count should be 0. If non-zero count, then sting is non-valid Float because it
+           contained non-numeric characters
+        */
+        
         // test for empty string
         if string == "" {
-            return nil
+            return nil  // non-valid Float, return nil
         }
         
         // create mutable string
@@ -282,18 +292,17 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
         // test for additional "-"
         if testStr.rangeOfString("-") != nil {
-            return nil
+            return nil // contained more than one "-", non-valid Float, return nil
         }
 
         // test for more than one decimal point
-        var count = 0
+        var dpCount = 0
         while testStr.rangeOfString(".") != nil {
-            count++
+            dpCount++
             testStr.removeRange(testStr.rangeOfString(".")!)
         }
-        // more than one decimal..return nil
-        if count > 1 {
-            return nil
+        if dpCount > 1 {
+            return nil // more than one decimal..return nil
         }
         
         // test for only valid numerals
