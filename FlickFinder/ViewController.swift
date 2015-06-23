@@ -199,8 +199,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
     @IBAction func searchByGeoButtonPressed(sender: UIButton) {
         
-        println(getBboxString())
-        
         // get bbox string
         if let bboxString = getBboxString() {
 
@@ -220,6 +218,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
             getImageFromFlickr()
         }
         else {
+            
+            // bad lon/lat..show error message
             imageTitleLabel.text = "Enter Valid lat/long values"
         }
     }
@@ -227,38 +227,47 @@ class ViewController: UIViewController, UITextFieldDelegate {
     // function to create valid long/lat for bbox Flickr search term
     func getBboxString() -> String? {
         
+        /*
+        test for valid Floats in lat/lon textfield. If not valid Floats, returns nil, otherwise formats
+        a valid Flickr bbox string...also verifies lon/lat are constrained to min/max values
+        */
+        
+        // declare lat/lon
         var latFloat: Float = 0.0
         var lonFloat: Float = 0.0
         
+        // test for valid lat Float
         if let lat = floatFromString(searchByLatTextField.text) {
             
-            latFloat = lat
+            latFloat = lat // lat is valid
             
+            // ..now test for valid lon Float
             if let lon = floatFromString(searchByLongTextField.text) {
                 
-                lonFloat = lon
+                lonFloat = lon // lon is valid
             }
             else {
-                return nil
+                return nil // bad lon, return nil
             }
         }
         else {
+            return nil // bad lat, return nil
+        }
+        
+        // test for lat within min/max values
+        if latFloat > MAX_LATITUDE || latFloat < MIN_LATITUDE {
+            return nil
+        }
+        // test for lon within min/max values
+        if lonFloat > MAX_LONGITUDE || lonFloat < MIN_LONGITUDE {
             return nil
         }
         
-        if latFloat >= MAX_LATITUDE || latFloat <= MIN_LATITUDE {
-            return nil
-        }
-        
-        if lonFloat >= MAX_LONGITUDE || lonFloat <= MIN_LONGITUDE {
-            return nil
-        }
-        
-        // TODO: constain to +/- 90/180
-        let minLat = latFloat - GEO_DELTA
-        let minLon = lonFloat - GEO_DELTA
-        let maxLat = latFloat + GEO_DELTA
-        let maxLon = lonFloat + GEO_DELTA
+        // constrain to min/max lat/lon
+        let minLat = max(latFloat - GEO_DELTA, MIN_LATITUDE)
+        let minLon = max(lonFloat - GEO_DELTA, MIN_LONGITUDE)
+        let maxLat = min(latFloat + GEO_DELTA, MAX_LATITUDE)
+        let maxLon = min(lonFloat + GEO_DELTA, MAX_LONGITUDE)
         
         return "\(minLon),\(minLat),\(maxLon),\(maxLat)"
     }
